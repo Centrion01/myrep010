@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Конвертер валют - Мультивалютный</title>
+    <title>Конвертер валют - Защищённый</title>
     <style>
         * {
             margin: 0;
@@ -17,11 +17,126 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             padding: 20px;
         }
 
-        .container {
+        /* ========== ЭКРАН ВХОДА ========== */
+        #loginScreen {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lock-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        #loginScreen h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        #loginScreen p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .password-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #passwordInput {
+            width: 100%;
+            font-size: 20px;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
+
+        #passwordInput:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 20px rgba(118, 75, 162, 0.3);
+        }
+
+        .toggle-eye {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 20px;
+            user-select: none;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .toggle-eye:hover {
+            opacity: 1;
+        }
+
+        #loginBtn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #loginBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        #loginBtn:active {
+            transform: translateY(0);
+        }
+
+        #loginError {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 15px;
+            min-height: 20px;
+            font-weight: 600;
+        }
+
+        .shake {
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* ========== КОНВЕРТЕР (скрыт по умолчанию) ========== */
+        #appContainer {
+            display: none;
             background: white;
             border-radius: 20px;
             padding: 40px;
@@ -31,11 +146,38 @@
             margin: 20px 0;
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
+        #appContainer.unlocked {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            font-size: 28px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 26px;
+        }
+
+        #logoutBtn {
+            background: #fff0f0;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #logoutBtn:hover {
+            background: #e74c3c;
+            color: white;
         }
 
         .subtitle {
@@ -45,7 +187,6 @@
             font-size: 14px;
         }
 
-        /* Верхняя панель выбора базовой валюты */
         .base-selector {
             background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf5 100%);
             border-radius: 15px;
@@ -108,7 +249,6 @@
             box-shadow: 0 0 15px rgba(118, 75, 162, 0.3);
         }
 
-        /* Сетка валют */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -234,29 +374,12 @@
             padding: 10px;
         }
 
-        .refresh-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-
-        .refresh-btn:hover {
-            background: #764ba2;
-        }
-
         @media (max-width: 600px) {
-            .container {
+            #appContainer {
                 padding: 20px 15px;
             }
             h1 {
-                font-size: 20px;
+                font-size: 18px;
             }
             .base-selector {
                 padding: 18px;
@@ -284,11 +407,30 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💱 Мультивалютный конвертер</h1>
+
+    <!-- ========== ЭКРАН ВХОДА ========== -->
+    <div id="loginScreen">
+        <div class="lock-icon">🔒</div>
+        <h2>Доступ закрыт</h2>
+        <p>Введите пароль для входа в конвертер</p>
+
+        <div class="password-wrap">
+            <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="off">
+            <span class="toggle-eye" id="toggleEye">👁️</span>
+        </div>
+
+        <button id="loginBtn">Войти</button>
+        <div id="loginError"></div>
+    </div>
+
+    <!-- ========== КОНВЕРТЕР ========== -->
+    <div id="appContainer">
+        <div class="app-header">
+            <h1>💱 Мультивалютный конвертер</h1>
+            <button id="logoutBtn">Выйти</button>
+        </div>
         <p class="subtitle">Выберите базовую валюту и введите сумму — получите результат во всех остальных</p>
 
-        <!-- Панель выбора базовой валюты -->
         <div class="base-selector">
             <label for="baseCurrency">Базовая валюта:</label>
             <select id="baseCurrency">
@@ -306,16 +448,93 @@
             </div>
         </div>
 
-        <!-- Сетка карточек валют -->
-        <div class="grid" id="currencyGrid">
-            <!-- Карточки будут сгенерированы JS -->
-        </div>
+        <div class="grid" id="currencyGrid"></div>
 
         <div class="rate-info" id="rateInfo">Загрузка курсов...</div>
     </div>
 
     <script>
-        // Справочник валют
+        /* ============================================================
+           🔑 ПАРОЛЬ
+           ============================================================ */
+        const SECRET_PASSWORD = "kenan8";
+
+        /* ============================================================
+           ЛОГИКА ВХОДА
+           ============================================================ */
+        const loginScreen = document.getElementById('loginScreen');
+        const appContainer = document.getElementById('appContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+        const toggleEye = document.getElementById('toggleEye');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let appInitialized = false;
+
+        function tryLogin() {
+            const entered = passwordInput.value;
+
+            if (entered === SECRET_PASSWORD) {
+                loginError.textContent = '';
+                loginScreen.style.display = 'none';
+                appContainer.classList.add('unlocked');
+
+                // Сохраняем, что пользователь вошёл
+                sessionStorage.setItem('converter_logged_in', '1');
+
+                // Инициализируем конвертер только один раз
+                if (!appInitialized) {
+                    appInitialized = true;
+                    initConverter();
+                }
+                passwordInput.value = '';
+            } else {
+                loginError.textContent = '❌ Неверный пароль. Попробуйте ещё раз.';
+                passwordInput.value = '';
+                passwordInput.focus();
+
+                // Тряска для наглядности
+                loginScreen.classList.remove('shake');
+                void loginScreen.offsetWidth;
+                loginScreen.classList.add('shake');
+            }
+        }
+
+        loginBtn.addEventListener('click', tryLogin);
+
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') tryLogin();
+        });
+
+        // Показать/скрыть пароль
+        toggleEye.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleEye.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleEye.textContent = '👁️';
+            }
+        });
+
+        // Выход — сбрасываем сессию и перезагружаем страницу
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('converter_logged_in');
+            location.reload();
+        });
+
+        // Автовход в рамках текущей вкладки (пока не закрыта)
+        if (sessionStorage.getItem('converter_logged_in') === '1') {
+            loginScreen.style.display = 'none';
+            appContainer.classList.add('unlocked');
+            appInitialized = true;
+            initConverter();
+        }
+
+        /* ============================================================
+           ЛОГИКА КОНВЕРТЕРА
+           ============================================================ */
         const CURRENCIES = {
             USD: { name: 'Доллар США', code: 'USD', symbol: '$', flag: '🇺🇸', color: '#2e7d32' },
             AZN: { name: 'Азербайджанский манат', code: 'AZN', symbol: '₼', flag: '🇦🇿', color: '#00a651' },
@@ -330,15 +549,11 @@
         const rateInfo = document.getElementById('rateInfo');
         const grid = document.getElementById('currencyGrid');
 
-        let rates = {};       // курсы относительно USD
+        let rates = {};
         let baseCurrency = 'USD';
 
-        // Форматирование чисел
         function formatNumber(num) {
             if (!isFinite(num)) return '—';
-            if (num >= 1000000) {
-                return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
-            }
             if (num >= 1000) {
                 return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
             }
@@ -348,15 +563,11 @@
             return num.toFixed(4);
         }
 
-        // Конвертация из базовой валюты в целевую
         function convert(amount, from, to) {
             if (!rates[from] || !rates[to]) return null;
-            // rates[X] = сколько X за 1 USD
-            // amount * (rates[to] / rates[from])
             return amount * (rates[to] / rates[from]);
         }
 
-        // Отрисовка сетки карточек
         function renderGrid() {
             const amount = parseFloat(amountInput.value) || 0;
             grid.innerHTML = '';
@@ -382,13 +593,11 @@
                     <div class="currency-name">${cur.name}</div>
                     <div class="currency-value">${displayValue}</div>
                     <div class="currency-code">${cur.code}</div>
-                    ${isBase ? '' : `<div class="swap-buttons">
-                        <button class="swap-btn" data-swap="${key}" title="Сделать базовой">↔ Сделать базовой</button>
-                    </div>`}
-                    ${isBase ? `<div class="swap-buttons"><button class="swap-btn active">★ Базовая</button></div>` : ''}
+                    ${isBase
+                        ? `<div class="swap-buttons"><button class="swap-btn active">★ Базовая</button></div>`
+                        : `<div class="swap-buttons"><button class="swap-btn" data-swap="${key}">↔ Сделать базовой</button></div>`}
                 `;
 
-                // Кнопка смены базовой валюты прямо в карточке
                 if (!isBase) {
                     card.querySelector('.swap-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -396,10 +605,7 @@
                         baseSelect.value = key;
                         renderGrid();
                     });
-                }
 
-                // Клик по всей карточке тоже делает её базовой
-                if (!isBase) {
                     card.style.cursor = 'pointer';
                     card.addEventListener('click', () => {
                         baseCurrency = key;
@@ -412,7 +618,6 @@
             });
         }
 
-        // Загрузка курсов
         async function loadRates() {
             rateInfo.innerHTML = '<span class="loading">⏳ Загрузка актуальных курсов...</span>';
             try {
@@ -432,15 +637,14 @@
                     renderGrid();
 
                     const updateDate = new Date(data.time_last_update_utc);
-                    rateInfo.innerHTML = `✅ Курсы обновлены: ${updateDate.toLocaleString('ru-RU')}
-                    <small></small>`;
+                    rateInfo.innerHTML = `✅ Курсы обновлены: ${updateDate.toLocaleString('ru-RU')}<br>
+                    <small>Источник: open.er-api.com · Все курсы относительно USD</small>`;
                 } else {
                     throw new Error('Не удалось получить курсы');
                 }
             } catch (error) {
                 console.error(error);
-                rateInfo.innerHTML = '<span class="error">⚠️ Не удалось загрузить курсы. Проверьте подключение к интернету.</span>';
-                // Резервные курсы на случай отсутствия интернета (примерные)
+                rateInfo.innerHTML = '<span class="error">⚠️ Не удалось загрузить курсы. Используются резервные.</span>';
                 rates = {
                     USD: 1,
                     AZN: 1.70,
@@ -453,16 +657,17 @@
             }
         }
 
-        // Слушатели
-        amountInput.addEventListener('input', renderGrid);
+        function initConverter() {
+            amountInput.addEventListener('input', renderGrid);
 
-        baseSelect.addEventListener('change', () => {
-            baseCurrency = baseSelect.value;
-            renderGrid();
-        });
+            baseSelect.addEventListener('change', () => {
+                baseCurrency = baseSelect.value;
+                renderGrid();
+            });
 
-        // Запуск
-        loadRates();
+            loadRates();
+            passwordInput.value = '';
+        }
     </script>
 </body>
 </html>
