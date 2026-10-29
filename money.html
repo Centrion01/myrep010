@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конвертер валют - Мультивалютный</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Верхняя панель выбора базовой валюты */
+        .base-selector {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf5 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #667eea;
+        }
+
+        .base-selector label {
+            color: #555;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .base-selector select {
+            font-size: 18px;
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+            min-width: 250px;
+        }
+
+        .base-selector select:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .amount-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .amount-input input {
+            font-size: 22px;
+            padding: 10px 18px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            text-align: center;
+            width: 180px;
+            outline: none;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .amount-input input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.3);
+        }
+
+        /* Сетка валют */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .currency-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 22px 18px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 5px solid #667eea;
+            position: relative;
+        }
+
+        .currency-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .currency-card.base-card {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffe082 100%);
+            border-left-color: #ffa000;
+            box-shadow: 0 0 25px rgba(255, 160, 0, 0.4);
+        }
+
+        .currency-card.base-card::after {
+            content: "БАЗОВАЯ";
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: #ffa000;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .flag {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .currency-name {
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .currency-value {
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+            word-break: break-word;
+            min-height: 28px;
+        }
+
+        .currency-code {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .swap-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .swap-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .swap-btn.active {
+            background: #ffa000;
+            cursor: default;
+        }
+
+        .swap-btn.active:hover {
+            transform: none;
+        }
+
+        .rate-info {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .loading {
+            color: #667eea;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .refresh-btn:hover {
+            background: #764ba2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .base-selector {
+                padding: 18px;
+                flex-direction: column;
+            }
+            .base-selector select {
+                min-width: 100%;
+                font-size: 16px;
+            }
+            .amount-input input {
+                font-size: 18px;
+                width: 140px;
+            }
+            .currency-value {
+                font-size: 16px;
+            }
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .currency-card {
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💱 Мультивалютный конвертер</h1>
+        <p class="subtitle">Выберите базовую валюту и введите сумму — получите результат во всех остальных</p>
+
+        <!-- Панель выбора базовой валюты -->
+        <div class="base-selector">
+            <label for="baseCurrency">Базовая валюта:</label>
+            <select id="baseCurrency">
+                <option value="USD">🇺🇸 Доллар США (USD)</option>
+                <option value="AZN">🇦🇿 Азербайджанский манат (AZN)</option>
+                <option value="EUR">🇪🇺 Евро (EUR)</option>
+                <option value="TRY">🇹🇷 Турецкая лира (TRY)</option>
+                <option value="RUB">🇷🇺 Российский рубль (RUB)</option>
+                <option value="IRR">🇮🇷 Иранский риал (IRR)</option>
+            </select>
+
+            <div class="amount-input">
+                <label for="amountInput">Сумма:</label>
+                <input type="number" id="amountInput" value="1" min="0" step="0.01">
+            </div>
+        </div>
+
+        <!-- Сетка карточек валют -->
+        <div class="grid" id="currencyGrid">
+            <!-- Карточки будут сгенерированы JS -->
+        </div>
+
+        <div class="rate-info" id="rateInfo">Загрузка курсов...</div>
+    </div>
+
+    <script>
+        // Справочник валют
+        const CURRENCIES = {
+            USD: { name: 'Доллар США', code: 'USD', symbol: '$', flag: '🇺🇸', color: '#2e7d32' },
+            AZN: { name: 'Азербайджанский манат', code: 'AZN', symbol: '₼', flag: '🇦🇿', color: '#00a651' },
+            EUR: { name: 'Евро', code: 'EUR', symbol: '€', flag: '🇪🇺', color: '#003399' },
+            TRY: { name: 'Турецкая лира', code: 'TRY', symbol: '₺', flag: '🇹🇷', color: '#e30a17' },
+            RUB: { name: 'Российский рубль', code: 'RUB', symbol: '₽', flag: '🇷🇺', color: '#d52b1e' },
+            IRR: { name: 'Иранский риал', code: 'IRR', symbol: '﷼', flag: '🇮🇷', color: '#239f40' }
+        };
+
+        const baseSelect = document.getElementById('baseCurrency');
+        const amountInput = document.getElementById('amountInput');
+        const rateInfo = document.getElementById('rateInfo');
+        const grid = document.getElementById('currencyGrid');
+
+        let rates = {};       // курсы относительно USD
+        let baseCurrency = 'USD';
+
+        // Форматирование чисел
+        function formatNumber(num) {
+            if (!isFinite(num)) return '—';
+            if (num >= 1000000) {
+                return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+            }
+            if (num >= 1000) {
+                return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+            }
+            if (num >= 1) {
+                return num.toFixed(2);
+            }
+            return num.toFixed(4);
+        }
+
+        // Конвертация из базовой валюты в целевую
+        function convert(amount, from, to) {
+            if (!rates[from] || !rates[to]) return null;
+            // rates[X] = сколько X за 1 USD
+            // amount * (rates[to] / rates[from])
+            return amount * (rates[to] / rates[from]);
+        }
+
+        // Отрисовка сетки карточек
+        function renderGrid() {
+            const amount = parseFloat(amountInput.value) || 0;
+            grid.innerHTML = '';
+
+            Object.keys(CURRENCIES).forEach(key => {
+                const cur = CURRENCIES[key];
+                const isBase = key === baseCurrency;
+
+                const card = document.createElement('div');
+                card.className = 'currency-card' + (isBase ? ' base-card' : '');
+                card.style.borderLeftColor = cur.color;
+
+                let displayValue;
+                if (isBase) {
+                    displayValue = formatNumber(amount) + ' ' + cur.symbol;
+                } else {
+                    const result = convert(amount, baseCurrency, key);
+                    displayValue = result !== null ? formatNumber(result) + ' ' + cur.symbol : '—';
+                }
+
+                card.innerHTML = `
+                    <div class="flag">${cur.flag}</div>
+                    <div class="currency-name">${cur.name}</div>
+                    <div class="currency-value">${displayValue}</div>
+                    <div class="currency-code">${cur.code}</div>
+                    ${isBase ? '' : `<div class="swap-buttons">
+                        <button class="swap-btn" data-swap="${key}" title="Сделать базовой">↔ Сделать базовой</button>
+                    </div>`}
+                    ${isBase ? `<div class="swap-buttons"><button class="swap-btn active">★ Базовая</button></div>` : ''}
+                `;
+
+                // Кнопка смены базовой валюты прямо в карточке
+                if (!isBase) {
+                    card.querySelector('.swap-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        baseCurrency = key;
+                        baseSelect.value = key;
+                        renderGrid();
+                    });
+                }
+
+                // Клик по всей карточке тоже делает её базовой
+                if (!isBase) {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', () => {
+                        baseCurrency = key;
+                        baseSelect.value = key;
+                        renderGrid();
+                    });
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Загрузка курсов
+        async function loadRates() {
+            rateInfo.innerHTML = '<span class="loading">⏳ Загрузка актуальных курсов...</span>';
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await response.json();
+
+                if (data && data.rates) {
+                    rates = {
+                        USD: 1,
+                        AZN: data.rates.AZN,
+                        EUR: data.rates.EUR,
+                        TRY: data.rates.TRY,
+                        RUB: data.rates.RUB,
+                        IRR: data.rates.IRR
+                    };
+
+                    renderGrid();
+
+                    const updateDate = new Date(data.time_last_update_utc);
+                    rateInfo.innerHTML = `✅ Курсы обновлены: ${updateDate.toLocaleString('ru-RU')}
+                    <small></small>`;
+                } else {
+                    throw new Error('Не удалось получить курсы');
+                }
+            } catch (error) {
+                console.error(error);
+                rateInfo.innerHTML = '<span class="error">⚠️ Не удалось загрузить курсы. Проверьте подключение к интернету.</span>';
+                // Резервные курсы на случай отсутствия интернета (примерные)
+                rates = {
+                    USD: 1,
+                    AZN: 1.70,
+                    EUR: 0.92,
+                    TRY: 34.50,
+                    RUB: 92.50,
+                    IRR: 42000
+                };
+                renderGrid();
+            }
+        }
+
+        // Слушатели
+        amountInput.addEventListener('input', renderGrid);
+
+        baseSelect.addEventListener('change', () => {
+            baseCurrency = baseSelect.value;
+            renderGrid();
+        });
+
+        // Запуск
+        loadRates();
+    </script>
+</body>
+</html>
