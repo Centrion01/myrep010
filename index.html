@@ -608,7 +608,7 @@
                 <option value="TRY">🇹🇷 Турецкая лира (TRY)</option>
                 <option value="RUB">🇷🇺 Российский рубль (RUB)</option>
                 <option value="IRR">🇮🇷 Иранский риал (IRR)</option>
-                <option value="Emil">I LoVe Emil</option>
+                <option value="EML">Эмильский доллар (EML)</option>
             </select>
             <div class="amount-input">
                 <label for="amountInput" id="labelAmount">Сумма:</label>
@@ -673,6 +673,7 @@
                 base_currency_try: 'Турецкая лира',
                 base_currency_rub: 'Российский рубль',
                 base_currency_irr: 'Иранский риал',
+                base_currency_eml: 'Эмильский доллар',
             },
             en: {
                 loginTitle: 'Access Denied',
@@ -703,6 +704,7 @@
                 base_currency_try: 'Turkish Lira',
                 base_currency_rub: 'Russian Ruble',
                 base_currency_irr: 'Iranian Rial',
+                base_currency_eml: 'Emil Dollar',
             },
             az: {
                 loginTitle: 'Giriş Qadağandır',
@@ -733,6 +735,7 @@
                 base_currency_try: 'Türk lirəsi',
                 base_currency_rub: 'Rus rublu',
                 base_currency_irr: 'İran rialı',
+                base_currency_eml: 'Emil dolları',
             }
         };
 
@@ -751,7 +754,8 @@
             EUR: { nameKey: 'base_currency_eur', code: 'EUR', symbol: '€', flag: '🇪🇺', color: '#003399' },
             TRY: { nameKey: 'base_currency_try', code: 'TRY', symbol: '₺', flag: '🇹🇷', color: '#e30a17' },
             RUB: { nameKey: 'base_currency_rub', code: 'RUB', symbol: '₽', flag: '🇷🇺', color: '#d52b1e' },
-            IRR: { nameKey: 'base_currency_irr', code: 'IRR', symbol: '﷼', flag: '🇮🇷', color: '#239f40' }
+            IRR: { nameKey: 'base_currency_irr', code: 'IRR', symbol: '﷼', flag: '🇮🇷', color: '#239f40' },
+            EML: { nameKey: 'base_currency_eml', code: 'EML', symbol: 'EML', flag: '💵', color: '#239f41' },
         };
 
         /* ============================================================
@@ -1099,7 +1103,8 @@
                         EUR: data.rates.EUR,
                         TRY: data.rates.TRY,
                         RUB: data.rates.RUB,
-                        IRR: data.rates.IRR
+                        IRR: data.rates.IRR,
+                        EML: 0.0001,
                     };
                     renderGrid();
                     updateRateInfo(new Date(data.time_last_update_utc));
@@ -1107,7 +1112,7 @@
                     throw new Error('No rates');
                 }
             } catch (e) {
-                rates = { USD: 1, AZN: 1.70, EUR: 0.92, TRY: 34.50, RUB: 92.50, IRR: 42000 };
+                rates = { USD: 1, AZN: 1.70, EUR: 0.92, TRY: 34.50, RUB: 92.50, IRR: 42000, EML: 35.50, };
                 renderGrid();
                 updateRateInfo();
             }
